@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard — OWASP GenAI Security Lab{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% set active_nav = 'dashboard' %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h2 class="dashboard-header__greeting">Welcome back, {{ user_name }}</h2>
+    <p class="dashboard-header__subtitle">Continue learning about GenAI security vulnerabilities</p>
+</div>
+
+<div class="dashboard-progress card card--filled" id="dashboardProgress">
+    <div class="dashboard-progress__info">
+        <span class="dashboard-progress__label">Your progress</span>
+        <span class="dashboard-progress__count" id="progressCount">0 / {{ lessons|length }} completed</span>
+    </div>
+    <div class="dashboard-progress__bar-wrap">
+        <div class="progress-linear">
+            <div class="progress-linear__bar" id="progressBar" style="width: 0%"></div>
+        </div>
+    </div>
+</div>
+
+<div class="lesson-grid">
+    {% for lesson in lessons %}
+    <a href="{{ url_for('lessons.lesson', lesson_id=lesson.id) }}" class="lesson-card fade-in stagger-{{ loop.index }}"
+        id="card-{{ lesson.id }}">
+        <div class="lesson-card__header">
+            <div class="lesson-card__icon" style="background-color: {{ lesson.color }}">
+                <span class="material-symbols-outlined">{{ lesson.icon }}</span>
+            </div>
+            <div class="lesson-card__meta">
+                <div class="lesson-card__owasp-id">{{ lesson.owasp_id }}</div>
+                <div class="lesson-card__title">{{ lesson.title }}</div>
+            </div>
+        </div>
+        <div class="lesson-card__body">
+            <p class="lesson-card__description">{{ lesson.description }}</p>
+        </div>
+        <div class="lesson-card__footer">
+            <div class="lesson-card__tags">
+                <span class="lesson-card__tag lesson-card__tag--difficulty">
+                    <span class="material-symbols-outlined" style="font-size:14px">signal_cellular_alt</span>
+                    {{ lesson.difficulty | capitalize }}
+                </span>
+                <span class="lesson-card__tag lesson-card__tag--time">
+                    <span class="material-symbols-outlined" style="font-size:14px">schedule</span>
+                    {{ lesson.duration_min }} min
+                </span>
+            </div>
+        </div>
+        <div class="lesson-card__progress">
+            <div class="progress-linear">
+                <div class="progress-linear__bar" data-lesson-progress="{{ lesson.id }}" style="width: 0%"></div>
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+<script>
+    updateDashboardProgress({{ lessons| length }});
+</script>
+{% endblock %}

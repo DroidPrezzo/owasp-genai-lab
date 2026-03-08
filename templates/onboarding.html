@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Start learning about GenAI security vulnerabilities with the OWASP Top 10 interactive lab.">
+    <title>Welcome — OWASP GenAI Security Lab</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body data-theme="">
+    <div class="onboarding">
+        <div class="onboarding__card card card--elevated fade-in">
+            <div class="onboarding__logo">
+                <span class="material-symbols-outlined">shield</span>
+            </div>
+
+            <h1 class="onboarding__title">GenAI Security Lab</h1>
+            <p class="onboarding__subtitle">
+                Learn the OWASP Top 10 for LLM applications through interactive lessons and real vulnerability demos.
+            </p>
+
+            <form action="{{ url_for('main.onboard') }}" method="POST" id="onboardForm">
+                <div class="text-field">
+                    <input type="text" class="text-field__input" id="nameInput" name="name" placeholder=" " required
+                        autocomplete="given-name">
+                    <label class="text-field__label" for="nameInput">Your name</label>
+                </div>
+
+                <label class="onboarding__goals-label">What would you like to learn?</label>
+                <div class="onboarding__goals" id="goalChips">
+                    <label class="chip" data-goal="prompt-injection">
+                        <input type="checkbox" name="goals" value="prompt-injection">
+                        <span class="material-symbols-outlined">check</span>
+                        Prompt Injection
+                    </label>
+                    <label class="chip" data-goal="sensitive-info">
+                        <input type="checkbox" name="goals" value="sensitive-info">
+                        <span class="material-symbols-outlined">check</span>
+                        Info Disclosure
+                    </label>
+                    <label class="chip" data-goal="improper-output">
+                        <input type="checkbox" name="goals" value="improper-output">
+                        <span class="material-symbols-outlined">check</span>
+                        Output Handling
+                    </label>
+                    <label class="chip" data-goal="system-prompt-leakage">
+                        <input type="checkbox" name="goals" value="system-prompt-leakage">
+                        <span class="material-symbols-outlined">check</span>
+                        Prompt Leakage
+                    </label>
+                    <label class="chip" data-goal="misinformation">
+                        <input type="checkbox" name="goals" value="misinformation">
+                        <span class="material-symbols-outlined">check</span>
+                        Misinformation
+                    </label>
+                </div>
+
+                <div class="onboarding__actions">
+                    <button type="submit" class="btn btn--filled btn--large" id="startBtn">
+                        <span class="material-symbols-outlined">arrow_forward</span>
+                        Start Learning
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Chip toggle behavior
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', (e) => {
+                // Don't prevent default — let the checkbox toggle naturally
+                const checkbox = chip.querySelector('input[type="checkbox"]');
+                // Toggle visual state after a tick (let checkbox state update first)
+                requestAnimationFrame(() => {
+                    chip.classList.toggle('chip--selected', checkbox.checked);
+                });
+            });
+        });
+
+        // Theme from localStorage
+        (function () {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'dark') document.body.setAttribute('data-theme', 'dark');
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Learn GenAI security vulnerabilities from the OWASP Top 10 with interactive demos and real attack examples.">
+  <title>{% block title %}OWASP GenAI Security Lab{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body data-theme="">
+
+  {% block body %}
+  <!-- Nav overlay for mobile -->
+  <div class="nav-overlay" id="navOverlay" onclick="toggleNav()"></div>
+
+  <div class="app-shell">
+    <!-- Navigation Rail -->
+    <nav class="nav-rail" id="navRail" aria-label="Main navigation">
+      <div class="nav-rail__logo" aria-hidden="true">GL</div>
+
+      <ul class="nav-rail__items">
+        <li>
+          <a href="{{ url_for('lessons.dashboard') }}" class="nav-rail__item {% if active_nav == 'dashboard' %}nav-rail__item--active{% endif %}">
+            <span class="nav-rail__indicator"></span>
+            <span class="material-symbols-outlined">dashboard</span>
+            <span>Learn</span>
+          </a>
+        </li>
+        <li>
+          <a href="{{ url_for('main.reset') }}" class="nav-rail__item">
+            <span class="nav-rail__indicator"></span>
+            <span class="material-symbols-outlined">logout</span>
+            <span>Reset</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-rail__spacer"></div>
+
+      <button class="nav-rail__theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">
+        <span class="material-symbols-outlined" id="themeIcon">dark_mode</span>
+      </button>
+    </nav>
+
+    <!-- Main content area -->
+    <div class="main-content">
+      <!-- Top bar -->
+      <header class="top-bar">
+        <div style="display:flex;align-items:center;gap:var(--space-md)">
+          <button class="mobile-menu-btn" onclick="toggleNav()" aria-label="Open menu">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+          <h1 class="top-bar__title">{% block page_title %}GenAI Security Lab{% endblock %}</h1>
+        </div>
+        <div class="top-bar__actions">
+          {% if session.get('user_name') %}
+            <span class="body-medium">{{ session['user_name'] }}</span>
+          {% endif %}
+        </div>
+      </header>
+
+      <main class="main-content__inner fade-in">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% endblock %}
+
+  <!-- Theme toggle + mobile nav JS -->
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+
+  <!-- GoatCounter analytics (privacy-friendly, no cookies) -->
+  {% if config.GOATCOUNTER_SITE %}
+  <script data-goatcounter="https://{{ config.GOATCOUNTER_SITE }}.goatcounter.com/count"
+          async src="//gc.zgo.at/count.js"></script>
+  {% endif %}
+</body>
+</html>

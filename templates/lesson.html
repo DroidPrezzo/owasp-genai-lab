@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}{{ lesson.title }} — OWASP GenAI Security Lab{% endblock %}
+{% block page_title %}{{ lesson.owasp_id }}: {{ lesson.title }}{% endblock %}
+
+{% set active_nav = 'lessons' %}
+
+{% block content %}
+<!-- Hero -->
+<div class="lesson-hero">
+    <div class="lesson-hero__badge" style="background-color: {{ lesson.color }}">
+        <span class="material-symbols-outlined" style="font-size:18px">{{ lesson.icon }}</span>
+        {{ lesson.owasp_id }}
+    </div>
+    <h2 class="lesson-hero__title">{{ lesson.title }}</h2>
+    <p class="lesson-hero__description">{{ lesson.description }}</p>
+</div>
+
+<!-- Lesson sections -->
+{% for section in lesson.sections %}
+<section class="lesson-section fade-in" id="section-{{ loop.index }}">
+
+    {% if section.type == 'theory' %}
+    <div class="lesson-section__label">
+        <span class="material-symbols-outlined" style="font-size:18px">menu_book</span>
+        Concept
+    </div>
+    <h3 class="lesson-section__title">{{ section.title }}</h3>
+    <div class="lesson-section__content">
+        {% for paragraph in section.content.split('\n\n') %}
+        <p>{{ paragraph | replace('**', '<strong>') | replace('**', '</strong>') | safe }}</p>
+        {% endfor %}
+    </div>
+
+    {% elif section.type == 'example' %}
+    <div class="lesson-section__label">
+        <span class="material-symbols-outlined" style="font-size:18px">article</span>
+        Case Study
+    </div>
+    <h3 class="lesson-section__title">{{ section.title }}</h3>
+    <div class="card card--outlined" style="padding: var(--space-lg)">
+        <div class="lesson-section__content">
+            {% for paragraph in section.content.split('\n\n') %}
+            <p>{{ paragraph }}</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% elif section.type == 'demo' %}
+    <div class="lesson-section__label">
+        <span class="material-symbols-outlined" style="font-size:18px">play_circle</span>
+        Interactive Demo
+    </div>
+    <h3 class="lesson-section__title">{{ section.title }}</h3>
+
+    <div class="demo-player" id="demoPlayer">
+        <div class="demo-player__header">
+            <div class="demo-player__title">
+                <span class="material-symbols-outlined">terminal</span>
+                Attack Simulation
+            </div>
+            <div class="demo-player__tabs" id="demoTabs">
+                {% for scenario in section.demo_scenarios %}
+                <button class="demo-player__tab {% if loop.first %}demo-player__tab--active{% endif %}"
+                    data-scenario="{{ loop.index0 }}" onclick="switchScenario({{ loop.index0 }})">{{ scenario.name
+                    }}</button>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% for scenario in section.demo_scenarios %}
+        <div class="demo-player__scenario {% if loop.first %}demo-player__scenario--active{% endif %}"
+            data-scenario-id="{{ loop.index0 }}">
+            <div class="demo-player__system-prompt">
+                <div class="demo-player__system-prompt-label">
+                    <span class="material-symbols-outlined" style="font-size:14px">lock</span>
+                    System Prompt (hidden from user)
+                </div>
+                <code
+                    style="font-family:'JetBrains Mono',monospace;font-size:0.8125rem">{{ scenario.system_prompt }}</code>
+            </div>
+
+            <div class="demo-player__chat" id="chat-{{ loop.index0 }}">
+                <!-- Messages will be animated in by JS -->
+            </div>
+
+            <div class="demo-player__controls">
+                <button class="btn btn--filled" onclick="playScenario({{ loop.index0 }})">
+                    <span class="material-symbols-outlined">play_arrow</span>
+                    Play Attack
+                </button>
+                <span class="body-small" style="display:flex;align-items:center;gap:4px">
+                    {% if scenario.success %}
+                    <span class="material-symbols-outlined"
+                        style="font-size:18px;color:var(--md-sys-color-error)">warning</span>
+                    Attack succeeds
+                    {% else %}
+                    <span class="material-symbols-outlined"
+                        style="font-size:18px;color:var(--md-sys-color-tertiary)">verified</span>
+                    Attack blocked
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Garak scan results -->
+    {% if section.garak_results %}
+    <div class="garak-results fade-in" id="garakResults">
+        <div class="garak-results__header">
+            <span class="material-symbols-outlined">bug_report</span>
+            <h4 class="garak-results__title">Garak Vulnerability Scan Results</h4>
+        </div>
+
+        <div class="garak-results__stats">
+            <div class="garak-results__stat">
+                <div class="garak-results__stat-value">{{ section.garak_results.total_attempts }}</div>
+                <div class="garak-results__stat-label">Total Probes</div>
+            </div>
+            <div class="garak-results__stat">
+                <div class="garak-results__stat-value garak-results__stat-value--danger">{{
+                    section.garak_results.successful_attacks }}</div>
+                <div class="garak-results__stat-label">Successful Attacks</div>
+            </div>
+            <div class="garak-results__stat">
+                <div class="garak-results__stat-value garak-results__stat-value--danger">{{
+                    (section.garak_results.failure_rate * 100) | round | int }}%</div>
+                <div class="garak-results__stat-label">Vulnerability Rate</div>
+            </div>
+        </div>
+
+        <div class="garak-results__bar">
+            <div class="garak-results__bar-fill"
+                style="width: {{ (section.garak_results.failure_rate * 100) | round | int }}%"></div>
+        </div>
+
+        <p class="garak-results__summary">
+            <strong>Probe:</strong> <code>garak.probes.{{ section.garak_results.probe }}</code><br>
+            {{ section.garak_results.summary }}
+        </p>
+    </div>
+    {% endif %}
+
+    {% elif section.type == 'prevention' %}
+    <div class="lesson-section__label">
+        <span class="material-symbols-outlined" style="font-size:18px">shield</span>
+        Defense
+    </div>
+    <h3 class="lesson-section__title">{{ section.title }}</h3>
+    <ol class="prevention-list">
+        {% for item in section.content.split('\n\n') %}
+        {% if item.strip() %}
+        {% set text = item.strip() %}
+        {% if '. ' in text and text.split('. ')[0] | length <= 2 %} {% set text=text.split('. ', 1)[1] %}
+        {% endif %}
+        <li>{{ text | safe }}</li>
+        {% endif %}
+        {% endfor %}
+    </ol>
+    {% endif %}
+
+</section>
+{% endfor %}
+
+<!-- Quiz -->
+{% if lesson.quiz %}
+<section class="lesson-section fade-in" id="quizSection">
+    <div class="lesson-section__label">
+        <span class="material-symbols-outlined" style="font-size:18px">quiz</span>
+        Knowledge Check
+    </div>
+
+    {% for q in lesson.quiz %}
+    {% set quiz_idx = loop.index0 %}
+    <div class="quiz" data-quiz-id="{{ quiz_idx }}" data-answer="{{ q.answer }}"
+        style="{% if not loop.last %}margin-bottom:var(--space-lg){% endif %}">
+        <h3 class="quiz__question">{{ q.question }}</h3>
+        <div class="quiz__options">
+            {% for option in q.options %}
+            <label class="quiz__option" data-option="{{ loop.index0 }}" onclick="selectQuizOption(this)">
+                <input type="radio" name="quiz-{{ quiz_idx }}" value="{{ loop.index0 }}">
+                <span class="quiz__radio"></span>
+                {{ option }}
+            </label>
+            {% endfor %}
+        </div>
+        <div style="display:flex;justify-content:flex-end">
+            <button class="btn btn--tonal" onclick="checkQuiz(this.closest(' .quiz'))">
+            Check Answer
+            </button>
+            </div>
+            </div>
+            {% endfor %}
+</section>
+{% endif %}
+
+<!-- Lesson navigation -->
+<div class="lesson-nav">
+    {% if prev_lesson %}
+    <a href="{{ url_for('lessons.lesson', lesson_id=prev_lesson.id) }}" class="btn btn--outlined">
+        <span class="material-symbols-outlined">arrow_back</span>
+        {{ prev_lesson.title }}
+    </a>
+    {% else %}
+    <a href="{{ url_for('lessons.dashboard') }}" class="btn btn--outlined">
+        <span class="material-symbols-outlined">arrow_back</span>
+        Dashboard
+    </a>
+    {% endif %}
+
+    <button class="btn btn--filled" id="completeBtn" onclick="markComplete('{{ lesson.id }}')">
+        <span class="material-symbols-outlined">check</span>
+        Mark Complete
+    </button>
+
+    {% if next_lesson %}
+    <a href="{{ url_for('lessons.lesson', lesson_id=next_lesson.id) }}" class="btn btn--outlined">
+        {{ next_lesson.title }}
+        <span class="material-symbols-outlined">arrow_forward</span>
+    </a>
+    {% else %}
+    <a href="{{ url_for('lessons.dashboard') }}" class="btn btn--outlined">
+        Dashboard
+        <span class="material-symbols-outlined">arrow_forward</span>
+    </a>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Scenario data from server
+    const scenarioData = {{ lesson.sections | selectattr('type', 'equalto', 'demo') | map(attribute = 'demo_scenarios') | first | default ([]) | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/demo-player.js') }}"></script>
+<script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+{% endblock %}
