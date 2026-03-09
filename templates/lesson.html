@@ -28,7 +28,11 @@
     <h3 class="lesson-section__title">{{ section.title }}</h3>
     <div class="lesson-section__content">
         {% for paragraph in section.content.split('\n\n') %}
-        <p>{{ paragraph | replace('**', '<strong>') | replace('**', '</strong>') | safe }}</p>
+        {% set escaped = paragraph | e %}
+        {% set formatted = escaped | replace('`', '<code>') | replace('`', '</code>') %}
+        {% set formatted = formatted | replace('**', '<strong>') | replace('**', '</strong>') %}
+        {% set formatted = formatted | replace('- ', '<br>• ') %}
+        <p>{{ formatted | safe }}</p>
         {% endfor %}
     </div>
 
@@ -41,7 +45,9 @@
     <div class="card card--outlined" style="padding: var(--space-lg)">
         <div class="lesson-section__content">
             {% for paragraph in section.content.split('\n\n') %}
-            <p>{{ paragraph }}</p>
+            {% set escaped = paragraph | e %}
+            {% set formatted = escaped | replace('`', '<code>') | replace('`', '</code>') %}
+            <p>{{ formatted | safe }}</p>
             {% endfor %}
         </div>
     </div>
