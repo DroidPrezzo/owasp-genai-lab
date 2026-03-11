@@ -218,6 +218,7 @@ html {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
@@ -225,6 +226,7 @@ body {
     color: var(--md-sys-color-on-background);
     background-color: var(--md-sys-color-background);
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
 a {
@@ -1450,6 +1452,34 @@ a:hover {
 
     .demo-player__message {
         max-width: 95%;
+    }
+
+    .demo-player__header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-sm);
+    }
+
+    .demo-player__tabs {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .lesson-nav {
+        flex-wrap: wrap;
+        gap: var(--space-sm);
+    }
+
+    .lesson-nav .btn {
+        min-width: 0;
+        flex-shrink: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .demo-player__system-prompt code {
+        word-break: break-all;
     }
 }
 
