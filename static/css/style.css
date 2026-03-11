@@ -1399,11 +1399,54 @@ a:hover {
     .nav-rail {
         transform: translateX(-100%);
         width: 280px;
+        align-items: stretch;
+        padding: var(--space-lg) var(--space-md);
+        background: var(--md-sys-color-surface);
     }
 
     .nav-rail--open {
         transform: translateX(0);
         box-shadow: var(--md-sys-elevation-3);
+    }
+
+    .nav-rail__logo {
+        margin-bottom: var(--space-lg);
+        align-self: flex-start;
+    }
+
+    .nav-rail__items {
+        gap: var(--space-xs);
+        width: 100%;
+    }
+
+    .nav-rail__item {
+        flex-direction: row;
+        align-items: center;
+        gap: var(--space-md);
+        padding: var(--space-md) var(--space-lg);
+        border-radius: var(--md-sys-shape-corner-md);
+        min-width: unset;
+        width: 100%;
+        font: var(--md-sys-typescale-label-large);
+        color: var(--md-sys-color-on-surface);
+    }
+
+    .nav-rail__item:hover {
+        background: var(--md-sys-color-surface-container);
+    }
+
+    .nav-rail__item--active {
+        background: var(--md-sys-color-primary-container);
+        color: var(--md-sys-color-on-primary-container);
+    }
+
+    .nav-rail__indicator {
+        display: none;
+    }
+
+    .nav-rail__theme-toggle {
+        align-self: flex-start;
+        margin-top: var(--space-md);
     }
 
     .nav-overlay {
